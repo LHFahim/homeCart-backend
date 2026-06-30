@@ -1,6 +1,8 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerThemeNameEnum } from 'swagger-themes';
+import { SwaggerTheme } from 'swagger-themes/build/swagger-theme';
 import { AppModule } from './app.module';
 import { ConfigService } from './config/config.service';
 
@@ -24,8 +26,8 @@ async function bootstrap() {
   app.useGlobalPipes(validationPipe);
 
   const config = new DocumentBuilder()
-    .setTitle('Basic Project')
-    .setDescription('Basic Project API description')
+    .setTitle('HomeCart Project')
+    .setDescription('HomeCart Project API description')
     .addBearerAuth({
       description: 'JWT Token',
       type: 'http',
@@ -33,9 +35,11 @@ async function bootstrap() {
       bearerFormat: 'JWT',
     })
     .setVersion('1.0')
-    .addTag('Basic Project')
+    .addTag('HomeCart Project')
     .build();
   const document = SwaggerModule.createDocument(app, config);
+
+  const theme = new SwaggerTheme();
 
   SwaggerModule.setup('api', app, document, {
     swaggerOptions: {
@@ -49,7 +53,8 @@ async function bootstrap() {
       defaultModelExpandDepth: 8,
       defaultModelsExpandDepth: 8,
     },
-    customSiteTitle: 'Basic Project API Docs',
+    customSiteTitle: 'HomeCart Project API Docs',
+    customCss: theme.getBuffer(SwaggerThemeNameEnum.DARK),
   });
 
   await app.listen(PORT);
