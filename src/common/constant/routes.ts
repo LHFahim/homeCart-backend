@@ -32,4 +32,16 @@ export const Routes = {
     updateOne: ':id',
     deleteOne: ':id',
   },
+  [ControllersEnum.Carts]: {
+    create: '',
+    findAll: '',
+    findOne: ':id',
+    updateOne: ':id',
+    deleteOne: ':id',
+    createItem: ':id/items',
+    findAllItems: ':id/items',
+    findOneItem: ':id/items/:itemId',
+    updateOneItem: ':id/items/:itemId',
+    deleteOneItem: ':id/items/:itemId',
+  },
 } as const;

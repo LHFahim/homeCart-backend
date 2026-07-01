@@ -8,6 +8,7 @@ import { ConfigService } from './config/config.service';
 import { ProfileModule } from './profile/profile.module';
 import { UserModule } from './user/user.module';
 import { HouseholdModule } from './household/household.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -28,6 +29,8 @@ import { HouseholdModule } from './household/household.module';
     ProfileModule,
 
     HouseholdModule,
+
+    CartModule,
   ],
   controllers: [],
   providers: [AppService],
