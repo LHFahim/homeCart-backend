@@ -23,10 +23,7 @@ import {
   CreateCartDto,
   UpdateCartDto,
 } from './dto/cart.dto';
-import {
-  CreateCartItemDto,
-  UpdateCartItemDto,
-} from './dto/cartItem.dto';
+import { CreateCartItemDto, UpdateCartItemDto } from './dto/cartItem.dto';
 
 @ApiTags('Carts')
 @Serialize()
@@ -49,6 +46,7 @@ export class CartController {
     @UserId() userId: string,
     @Query() query: CartQueryDto,
   ): Promise<CartPaginatedDto> {
+    console.log('inside findAll controller');
     return this.cartService.findAll(userId, query);
   }
 
@@ -58,7 +56,11 @@ export class CartController {
   }
 
   @Patch(Routes[ControllersEnum.Carts].updateOne)
-  update(@UserId() userId: string, @ResourceId() id: string, @Body() body: UpdateCartDto) {
+  update(
+    @UserId() userId: string,
+    @ResourceId() id: string,
+    @Body() body: UpdateCartDto,
+  ) {
     return this.cartService.update(userId, id, body);
   }
 

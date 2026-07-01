@@ -71,7 +71,7 @@ export class CartEntity extends DocumentWithTimeStamps {
   isDeleted: boolean;
 }
 
-@Model('cartItems', true)
+@Model('cart-items', true)
 export class CartItemEntity extends DocumentWithTimeStamps {
   @Expose()
   @IsString()

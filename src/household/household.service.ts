@@ -23,11 +23,17 @@ export class HouseholdService extends SerializeService<HouseholdEntity> {
     super(HouseholdEntity);
   }
 
+  private getAccessibleHouseholds(userId: string) {
+    return {
+      isDeleted: false,
+      $or: [{ createdBy: userId }, { 'members.userId': userId }],
+    };
+  }
+
   async create(
     userId: string,
     body: CreateHouseholdDto,
   ): Promise<HouseholdDto> {
-    console.log('body --->', body);
     const household = await this.householdModel.create({
       ...body,
       settings: {
@@ -52,16 +58,11 @@ export class HouseholdService extends SerializeService<HouseholdEntity> {
     query: HouseholdQueryDto,
   ): Promise<HouseholdPaginatedDto> {
     const filter = {
-      createdBy: userId,
+      ...this.getAccessibleHouseholds(userId),
       ...(query.search
         ? { name: { $regex: query.search, $options: 'i' } }
         : {}),
     };
-
-    // const sortBy = query.sortBy || 'createdAt';
-    // const sort = query.sort || 'desc';
-    // const page = query.page || 1;
-    // const pageSize = query.pageSize || 20;
 
     const docs = await this.householdModel
       .find(filter)
@@ -86,7 +87,7 @@ export class HouseholdService extends SerializeService<HouseholdEntity> {
   async findOne(userId: string, id: string): Promise<HouseholdDto> {
     const household = await this.householdModel.findOne({
       _id: id,
-      createdBy: userId,
+      ...this.getAccessibleHouseholds(userId),
     });
 
     if (!household) throw new NotFoundException('Household not found');

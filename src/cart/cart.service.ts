@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { SerializeService } from 'libraries/serializer/serialize';
 import { InjectModel } from 'nestjs-typegoose';
+import { HouseholdEntity } from 'src/household/entities/household.entity';
 import {
   CartDto,
   CartPaginatedDto,
@@ -16,7 +17,6 @@ import {
   CartItemPriorityEnum,
   CartStatusEnum,
 } from './entities/cart.entity';
-import { HouseholdEntity } from 'src/household/entities/household.entity';
 
 @Injectable()
 export class CartService extends SerializeService<CartEntity> {
@@ -78,7 +78,11 @@ export class CartService extends SerializeService<CartEntity> {
     return this.toJSON(cart, CartDto);
   }
 
-  async findAll(userId: string, query: CartQueryDto): Promise<CartPaginatedDto> {
+  async findAll(
+    userId: string,
+    query: CartQueryDto,
+  ): Promise<CartPaginatedDto> {
+    console.log('inside findAll');
     const householdIds = await this.getAccessibleHouseholdIds(userId);
     const accessibleHouseholdIds = householdIds.map((householdId) =>
       householdId.toString(),
