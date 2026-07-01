@@ -43,6 +43,13 @@ export class CartEntity extends DocumentWithTimeStamps {
   householdId: Types.ObjectId;
 
   @Expose()
+  @IsMongoId()
+  @Transform(({ value }) => value?.toString())
+  @ApiProperty({ required: true, type: String })
+  @Prop({ required: true, type: Types.ObjectId })
+  createdBy: Types.ObjectId;
+
+  @Expose()
   @IsEnum(CartStatusEnum)
   @ApiProperty({
     required: true,
@@ -93,6 +100,13 @@ export class CartItemEntity extends DocumentWithTimeStamps {
   @ApiProperty({ required: true, type: String })
   @Prop({ required: true, type: Types.ObjectId })
   householdId: Types.ObjectId;
+
+  @Expose()
+  @IsMongoId()
+  @Transform(({ value }) => value?.toString())
+  @ApiProperty({ required: true, type: String })
+  @Prop({ required: true, type: Types.ObjectId })
+  createdBy: Types.ObjectId;
 
   @Expose()
   @Type(() => Number)

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { SerializeService } from 'libraries/serializer/serialize';
 import { InjectModel } from 'nestjs-typegoose';
+import { Types } from 'mongoose';
 import { HouseholdEntity } from 'src/household/entities/household.entity';
 import {
   CartDto,
@@ -32,10 +33,12 @@ export class CartService extends SerializeService<CartEntity> {
   }
 
   private async getAccessibleHouseholdIds(userId: string) {
+    const userObjectId = new Types.ObjectId(userId);
+
     const households = await this.householdModel
       .find({
         isDeleted: false,
-        $or: [{ createdBy: userId }, { 'members.userId': userId }],
+        $or: [{ createdBy: userObjectId }, { 'members.userId': userObjectId }],
       })
       .select({ _id: 1 });
 
@@ -43,15 +46,21 @@ export class CartService extends SerializeService<CartEntity> {
   }
 
   private async getAccessibleCart(userId: string, cartId: string) {
-    const householdIds = await this.getAccessibleHouseholdIds(userId);
-
     const cart = await this.cartModel.findOne({
       _id: cartId,
       isDeleted: false,
-      householdId: { $in: householdIds },
     });
 
     if (!cart) throw new NotFoundException('Cart not found');
+
+    const userObjectId = new Types.ObjectId(userId);
+    const household = await this.householdModel.findOne({
+      _id: cart.householdId,
+      isDeleted: false,
+      $or: [{ createdBy: userObjectId }, { 'members.userId': userObjectId }],
+    });
+
+    if (!household) throw new NotFoundException('Cart not found');
 
     return cart;
   }
@@ -73,6 +82,7 @@ export class CartService extends SerializeService<CartEntity> {
       completedAt: null,
       isActive: true,
       isDeleted: false,
+      createdBy: userId,
     });
 
     return this.toJSON(cart, CartDto);
@@ -185,12 +195,15 @@ export class CartService extends SerializeService<CartEntity> {
   }
 
   async createItem(userId: string, cartId: string, body: CreateCartItemDto) {
+    console.log('inside createItem');
     const cart = await this.getAccessibleCart(userId, cartId);
+    console.log('🚀 ~ CartService ~ createItem ~ cart:', cart);
 
     const item = await this.cartItemModel.create({
       ...body,
       cartId,
       householdId: cart.householdId,
+      createdBy: userId,
       addedBy: userId,
       quantity: body.quantity ?? 1,
       priority: body.priority ?? CartItemPriorityEnum.NORMAL,
