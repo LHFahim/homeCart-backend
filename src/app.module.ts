@@ -9,6 +9,7 @@ import { ProfileModule } from './profile/profile.module';
 import { UserModule } from './user/user.module';
 import { HouseholdModule } from './household/household.module';
 import { CartModule } from './cart/cart.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -31,6 +32,8 @@ import { CartModule } from './cart/cart.module';
     HouseholdModule,
 
     CartModule,
+
+    NotificationModule,
   ],
   controllers: [],
   providers: [AppService],
