@@ -2,12 +2,18 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Headers,
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiHeader,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Serialize } from 'libraries/serializer/serializer.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Routes } from 'src/common/constant/routes';
@@ -20,6 +26,10 @@ import {
   TestPushDto,
   UnsubscribePushDto,
 } from './dto/push-subscription.dto';
+import {
+  HighPriorityReminderService,
+  HighPriorityReminderSummary,
+} from './high-priority-reminder.service';
 import { NotificationService } from './notification.service';
 
 @ApiTags('Notifications')
@@ -29,7 +39,10 @@ import { NotificationService } from './notification.service';
   version: APIVersions.V1,
 })
 export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(
+    private readonly notificationService: NotificationService,
+    private readonly highPriorityReminderService: HighPriorityReminderService,
+  ) {}
 
   @Get(Routes[ControllersEnum.Notifications].publicKey)
   @ApiOperation({
@@ -80,5 +93,41 @@ export class NotificationController {
       badge: '/icons/badge-72x72.png',
       tag: 'homecart-test',
     });
+  }
+
+  @Post(Routes[ControllersEnum.Notifications].highPriorityReminderTest)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary:
+      'Send a high-priority cart item reminder test push for the current user',
+  })
+  sendHighPriorityReminderTest(@UserId() userId: string) {
+    return this.highPriorityReminderService.sendHighPriorityReminderToUser(
+      userId,
+    );
+  }
+
+  @Post(Routes[ControllersEnum.Notifications].highPriorityRemindersInternal)
+  @ApiOperation({
+    summary:
+      'Internal endpoint for deployment scheduler to trigger high-priority reminders',
+  })
+  @ApiHeader({
+    name: 'x-cron-secret',
+    required: true,
+    description:
+      'Internal scheduler secret from CRON_SECRET environment variable',
+  })
+  sendInternalHighPriorityReminders(
+    @Headers('x-cron-secret') cronSecret?: string,
+  ): Promise<HighPriorityReminderSummary> {
+    const configuredSecret = process.env.CRON_SECRET;
+
+    if (!configuredSecret || !cronSecret || cronSecret !== configuredSecret) {
+      throw new ForbiddenException('Forbidden');
+    }
+
+    return this.highPriorityReminderService.sendHighPriorityRemindersWithOverlapProtection();
   }
 }

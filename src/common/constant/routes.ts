@@ -50,5 +50,7 @@ export const Routes = {
     subscribe: 'subscribe',
     unsubscribe: 'unsubscribe',
     test: 'test',
+    highPriorityReminderTest: 'reminders/high-priority/test',
+    highPriorityRemindersInternal: 'internal/high-priority-reminders',
   },
 } as const;

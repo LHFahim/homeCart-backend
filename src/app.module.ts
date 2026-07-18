@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { AdminModule } from './admin/admin.module';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { CartModule } from './cart/cart.module';
 import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
+import { HouseholdModule } from './household/household.module';
+import { NotificationModule } from './notification/notification.module';
 import { ProfileModule } from './profile/profile.module';
 import { UserModule } from './user/user.module';
-import { HouseholdModule } from './household/household.module';
-import { CartModule } from './cart/cart.module';
-import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { NotificationModule } from './notification/notification.module';
     }),
 
     ConfigModule,
+    ScheduleModule.forRoot(),
     UserModule,
     AuthModule,
 
