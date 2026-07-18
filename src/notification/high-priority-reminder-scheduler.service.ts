@@ -12,46 +12,62 @@ export class HighPriorityReminderSchedulerService {
     private readonly highPriorityReminderService: HighPriorityReminderService,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE, {
-    name: 'high-priority-cart-item-reminders',
+  @Cron(CronExpression.EVERY_DAY_AT_3PM, {
+    name: 'high-priority-cart-item-reminders-3pm',
     timeZone: process.env.REMINDER_TIMEZONE || 'Australia/Sydney',
     waitForCompletion: true,
   })
-  async runScheduledHighPriorityReminder(): Promise<void> {
-    const startTime = Date.now();
+  async runThreePmReminder(): Promise<void> {
+    await this.runHighPriorityReminder('3 PM');
+  }
 
-    this.logger.log('High-priority reminder run started');
+  @Cron(CronExpression.EVERY_DAY_AT_11PM, {
+    name: 'high-priority-cart-item-reminders-11pm',
+    timeZone: process.env.REMINDER_TIMEZONE || 'Australia/Sydney',
+    waitForCompletion: true,
+  })
+  async runElevenPmReminder(): Promise<void> {
+    await this.runHighPriorityReminder('11 PM');
+  }
+
+  private async runHighPriorityReminder(scheduleLabel: string): Promise<void> {
+    const startTime = Date.now();
 
     const enabled = process.env.HIGH_PRIORITY_REMINDERS_ENABLED === 'true';
 
     if (!enabled) {
-      const durationMs = Date.now() - startTime;
+      this.logger.warn(
+        `${scheduleLabel} high-priority reminder skipped because HIGH_PRIORITY_REMINDERS_ENABLED is not true`,
+      );
 
-      this.logger.log(
-        'High-priority reminder run is disabled because HIGH_PRIORITY_REMINDERS_ENABLED is not true',
-      );
-      this.logger.log(
-        `High-priority reminder run completed usersConsidered=0 usersNotified=0 notificationsSent=0 failures=0 usersWithNoPushSubscriptions=0 durationMs=${durationMs}`,
-      );
       return;
     }
+
+    this.logger.log(`${scheduleLabel} high-priority reminder run started`);
 
     try {
       const summary =
         await this.highPriorityReminderService.sendHighPriorityRemindersWithOverlapProtection();
+
       const durationMs = Date.now() - startTime;
 
       this.logger.log(
-        `High-priority reminder run completed usersConsidered=${summary.usersConsidered} usersNotified=${summary.usersNotified} notificationsSent=${summary.notificationsSent} failures=${summary.failures} usersWithNoPushSubscriptions=${summary.usersWithNoPushSubscriptions} durationMs=${durationMs}`,
+        [
+          `${scheduleLabel} high-priority reminder run completed`,
+          `usersConsidered=${summary.usersConsidered}`,
+          `usersNotified=${summary.usersNotified}`,
+          `notificationsSent=${summary.notificationsSent}`,
+          `failures=${summary.failures}`,
+          `usersWithNoPushSubscriptions=${summary.usersWithNoPushSubscriptions}`,
+          `durationMs=${durationMs}`,
+        ].join(' '),
       );
-    } catch (error) {
+    } catch (error: unknown) {
       const durationMs = Date.now() - startTime;
+
       this.logger.error(
-        'High-priority reminder run failed',
-        error instanceof Error ? error.stack : 'Unknown error',
-      );
-      this.logger.log(
-        `High-priority reminder run completed usersConsidered=0 usersNotified=0 notificationsSent=0 failures=1 usersWithNoPushSubscriptions=0 durationMs=${durationMs}`,
+        `${scheduleLabel} high-priority reminder run failed after ${durationMs}ms`,
+        error instanceof Error ? error.stack : String(error),
       );
     }
   }
