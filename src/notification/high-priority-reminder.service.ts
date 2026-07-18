@@ -147,7 +147,7 @@ export class HighPriorityReminderService {
 
       try {
         const result = await this.notificationService.sendToUser(userId, {
-          title: 'HomeCart reminder',
+          title: 'A little reminder from someone who loves you ❤️',
           body: payloadBody,
           url: this.buildReminderUrl(),
           tag: 'high-priority-reminder',
@@ -302,10 +302,10 @@ export class HighPriorityReminderService {
     const base = visibleNames.join(', ');
 
     if (remainingCount > 0) {
-      return `High-priority items: ${base} and ${remainingCount} more`;
+      return `High priority items: ${base} and ${remainingCount} more`;
     }
 
-    return `High-priority items: ${base}`;
+    return `High priority items: ${base}`;
   }
 
   private buildReminderUrl(): string {
