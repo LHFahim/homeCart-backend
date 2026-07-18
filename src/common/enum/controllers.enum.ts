@@ -6,4 +6,5 @@ export enum ControllersEnum {
   Profile = 'profile',
   Households = 'households',
   Carts = 'carts',
+  Notifications = 'notifications',
 }

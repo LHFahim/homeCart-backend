@@ -13,6 +13,13 @@ async function bootstrap() {
   const configService: ConfigService = app.get(ConfigService);
   const PORT = configService.PORT;
 
+  const frontendUrl = configService.FRONTEND_URL;
+
+  app.enableCors({
+    origin: ['http://localhost:3000', frontendUrl].filter(Boolean) as string[],
+    credentials: true,
+  });
+
   const validationPipe = new ValidationPipe({
     whitelist: true,
     stopAtFirstError: true,

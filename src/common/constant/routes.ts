@@ -44,4 +44,11 @@ export const Routes = {
     updateOneItem: ':id/items/:itemId',
     deleteOneItem: ':id/items/:itemId',
   },
+
+  [ControllersEnum.Notifications]: {
+    publicKey: 'public-key',
+    subscribe: 'subscribe',
+    unsubscribe: 'unsubscribe',
+    test: 'test',
+  },
 } as const;

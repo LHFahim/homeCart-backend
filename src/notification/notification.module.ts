@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
-import { NotificationService } from './notification.service';
+import { TypegooseModule } from 'nestjs-typegoose';
+import { PushSubscriptionEntity } from './entities/push-subscription.entity';
 import { NotificationController } from './notification.controller';
+import { NotificationService } from './notification.service';
 
 @Module({
+  imports: [TypegooseModule.forFeature([PushSubscriptionEntity])],
   controllers: [NotificationController],
   providers: [NotificationService],
 })
