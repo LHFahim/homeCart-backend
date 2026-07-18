@@ -12,6 +12,15 @@ export class HighPriorityReminderSchedulerService {
     private readonly highPriorityReminderService: HighPriorityReminderService,
   ) {}
 
+  @Cron(CronExpression.EVERY_MINUTE, {
+    name: 'high-priority-cart-item-reminders-every-minute',
+    timeZone: process.env.REMINDER_TIMEZONE || 'Australia/Sydney',
+    waitForCompletion: true,
+  })
+  async runEveryMinuteReminder(): Promise<void> {
+    await this.runHighPriorityReminder('Every Minute');
+  }
+
   @Cron(CronExpression.EVERY_DAY_AT_3PM, {
     name: 'high-priority-cart-item-reminders-3pm',
     timeZone: process.env.REMINDER_TIMEZONE || 'Australia/Sydney',
