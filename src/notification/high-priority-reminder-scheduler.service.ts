@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { HighPriorityReminderService } from './high-priority-reminder.service';
 
 @Injectable()
@@ -12,8 +12,8 @@ export class HighPriorityReminderSchedulerService {
     private readonly highPriorityReminderService: HighPriorityReminderService,
   ) {}
 
-  @Cron('0 0 15,23 * * *', {
-    name: 'high-priority-cart-items-reminder-job',
+  @Cron(CronExpression.EVERY_MINUTE, {
+    name: 'high-priority-cart-item-reminders',
     timeZone: process.env.REMINDER_TIMEZONE || 'Australia/Sydney',
     waitForCompletion: true,
   })
@@ -28,7 +28,7 @@ export class HighPriorityReminderSchedulerService {
       const durationMs = Date.now() - startTime;
 
       this.logger.log(
-        'High-priority reminder skipped because HIGH_PRIORITY_REMINDERS_ENABLED is not true',
+        'High-priority reminder run is disabled because HIGH_PRIORITY_REMINDERS_ENABLED is not true',
       );
       this.logger.log(
         `High-priority reminder run completed usersConsidered=0 usersNotified=0 notificationsSent=0 failures=0 usersWithNoPushSubscriptions=0 durationMs=${durationMs}`,
